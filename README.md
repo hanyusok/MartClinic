@@ -27,6 +27,16 @@ MartClinic is a modern Android application built with Jetpack Compose, following
 - Real-time API communication
 - Pagination support
 - Error handling and retry mechanisms
+- Advanced search functionality:
+  - Search by name with real-time suggestions
+  - Search by PCODE (Patient Code)
+  - Search by Search ID (주민등록번호)
+- Modern UI components:
+  - Horizontally scrollable result cards
+  - Material 3 input fields with icons
+  - Responsive layouts
+  - Scroll indicators
+  - Bilingual interface (Korean/English)
 
 ## 🏗️ Project Structure
 
@@ -44,6 +54,9 @@ app/
 │   │   │   │   ├── di/             # Dependency injection modules
 │   │   │   │   ├── ui/             # UI components
 │   │   │   │   │   ├── screens/    # Screen composables
+│   │   │   │   │   │   ├── search/ # Search-related screens
+│   │   │   │   │   │   └── person/ # Person management screens
+│   │   │   │   │   ├── components/ # Reusable UI components
 │   │   │   │   │   ├── theme/      # Theme configuration
 │   │   │   │   │   └── viewmodel/  # ViewModel classes
 │   │   │   │   └── utils/          # Utility classes
@@ -51,6 +64,30 @@ app/
 │   │   └── AndroidManifest.xml
 │   └── test/                       # Unit tests
 ```
+
+## 🔍 Search Features
+
+### Search by Name
+- Real-time search suggestions
+- Debounced search to prevent excessive API calls
+- Clear search functionality
+- Material 3 styled input field with search icon
+
+### Search by PCODE
+- Direct patient code lookup
+- Numeric keyboard input
+- Instant results display
+
+### Search by Search ID (주민등록번호)
+- Split input for front (6 digits) and back (1 digit) numbers
+- Automatic focus management
+- Material 3 styled input fields
+- Modern result display with:
+  - Two-row horizontal scrolling layout
+  - Scroll indicators
+  - Sort by birthdate
+  - Consistent card sizing
+  - Responsive layout
 
 ## 🌐 Network Configuration
 
