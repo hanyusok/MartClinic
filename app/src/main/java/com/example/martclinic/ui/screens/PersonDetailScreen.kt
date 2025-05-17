@@ -1,5 +1,6 @@
 package com.example.martclinic.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -24,6 +25,9 @@ import com.example.martclinic.util.DateUtils
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 
 @Composable
 fun PersonDetailField(
@@ -55,23 +59,36 @@ fun PersonDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val currentPerson by viewModel.currentPerson.collectAsState()
     var showConfirmDialog by remember { mutableStateOf(false) }
-    var phoneNumber by remember { mutableStateOf("") }
-    val snackbarHostState = remember { SnackbarHostState() }
+    var phonePart1 by remember { mutableStateOf("") }
+    var phonePart2 by remember { mutableStateOf("") }
+    val focusRequesterPart2 = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var shouldShowPopup by remember { mutableStateOf(false) }
+    var popupMessage by remember { mutableStateOf("") }
     var shouldNavigateHome by remember { mutableStateOf(false) }
+    var hasNavigatedHome by remember { mutableStateOf(false) }
 
     LaunchedEffect(shouldNavigateHome) {
         if (shouldNavigateHome) {
-            snackbarHostState.showSnackbar(
-                message = "진료 신청이 완료되었습니다. Appointment completed.",
-                duration = SnackbarDuration.Short
-            )
-            onNavigateToHome()
+            popupMessage = "접수 완료!. Appointment completed."
+            shouldShowPopup = true
             shouldNavigateHome = false
         }
     }
 
     LaunchedEffect(pcode) {
         viewModel.getPerson(pcode)
+    }
+
+    LaunchedEffect(shouldShowPopup) {
+        if (shouldShowPopup) {
+            kotlinx.coroutines.delay(3000)
+            if (!hasNavigatedHome) {
+                hasNavigatedHome = true
+                shouldShowPopup = false
+                onNavigateToHome()
+            }
+        }
     }
 
     Scaffold(
@@ -84,8 +101,7 @@ fun PersonDetailScreen(
                     }
                 }
             )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -197,7 +213,7 @@ fun PersonDetailScreen(
                                     modifier = Modifier.size(32.dp)
                                 )
                                 Text(
-                                    "본인이 아님에도 불구하고, 타인 이름으로 거짓으로 접수하면, 형사 고발되어, 2년이하 징역형 (또는 2천만원 이하) 처벌됩니다.",
+                                    "본인이 아님에도 불구하고, 타인 이름으로 거짓으로 접수하면, 형사 고발 되어, 2년이하 징역 (또는 2천만원 이하) 처벌 대상이 됩니다.",
                                     style = MaterialTheme.typography.titleLarge,
                                     color = MaterialTheme.colorScheme.error
                                 )
@@ -212,33 +228,46 @@ fun PersonDetailScreen(
                                 style = MaterialTheme.typography.titleLarge
                             )
 
-                            OutlinedTextField(
-                                value = phoneNumber,
-                                onValueChange = { newValue ->
-                                    // Only allow up to 8 digits
-                                    val digitsOnly = newValue.filter { it.isDigit() }.take(8)
-                                    phoneNumber = digitsOnly
-                                },
-                                label = { 
-                                    Text(
-                                        "핸드폰 Mobile (필수 Necessary)",
-                                        style = MaterialTheme.typography.titleLarge
-                                    ) 
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = MaterialTheme.typography.titleLarge,
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number
-                                ),
-                                singleLine = true,
-                                placeholder = {
-                                    Text(
-                                        "(010없이)XXXXXXXX (\"-\"없이)",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                                    )
-                                }
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(64.dp)
+                                    .align(Alignment.CenterHorizontally),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text("010-", style = MaterialTheme.typography.titleLarge)
+                                OutlinedTextField(
+                                    value = phonePart1,
+                                    onValueChange = {
+                                        val filtered = it.filter { c -> c.isDigit() }.take(4)
+                                        phonePart1 = filtered
+                                        if (filtered.length == 4) {
+                                            focusRequesterPart2.requestFocus()
+                                        }
+                                    },
+                                    label = { Text("앞 4자리") },
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                        .fillMaxHeight(),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    textStyle = MaterialTheme.typography.titleLarge
+                                )
+                                Text("-", style = MaterialTheme.typography.titleLarge)
+                                OutlinedTextField(
+                                    value = phonePart2,
+                                    onValueChange = { phonePart2 = it.filter { c -> c.isDigit() }.take(4) },
+                                    label = { Text("뒤 4자리") },
+                                    modifier = Modifier
+                                        .weight(0.5f)
+                                        .fillMaxHeight()
+                                        .focusRequester(focusRequesterPart2),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    textStyle = MaterialTheme.typography.titleLarge
+                                )
+                            }
                         }
                     },
                     confirmButton = {
@@ -249,10 +278,9 @@ fun PersonDetailScreen(
                             Button(
                                 onClick = {
                                     val pcode = currentPerson!!.pcode
-                                    if (pcode != null && phoneNumber.length == 8) {
+                                    if (pcode != null && phonePart1.length == 4 && phonePart2.length == 4) {
+                                        val phoneNumber = phonePart1 +'-' + phonePart2
                                         val currentDateTime = DateUtils.getCurrentIsoDateTime()
-                                        // Format phone number with hyphen
-                                        val formattedPhone = "${phoneNumber.substring(0, 4)}-${phoneNumber.substring(4)}"
                                         val mtr = Mtr(
                                             pcode = pcode,
                                             visidate = currentDateTime,
@@ -261,8 +289,8 @@ fun PersonDetailScreen(
                                             pname = currentPerson!!.pname ?: "",
                                             pbirth = currentPerson!!.pbirth ?: "",
                                             sex = currentPerson!!.sex ?: "",
-                                            age = calculateAge(currentPerson!!.pbirth ?: ""),
-                                            phonenum = formattedPhone,
+                                            age = DateUtils.calculateAge(currentPerson!!.pbirth ?: ""),
+                                            phonenum = phoneNumber,
                                             n = generateRandomN(),
                                             gubun = "요양",
                                             reserved = " ",
@@ -280,7 +308,7 @@ fun PersonDetailScreen(
                                     containerColor = MaterialTheme.colorScheme.primary,
                                     disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                                 ),
-                                enabled = phoneNumber.length == 8
+                                enabled = phonePart1.length == 4 && phonePart2.length == 4
                             ) {
                                 Text(
                                     "확인 Confirm",
@@ -305,6 +333,46 @@ fun PersonDetailScreen(
                     },
                     dismissButton = { }
                 )
+            }
+
+            // Custom Large Popup
+            if (shouldShowPopup) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
+                ) {
+                    Card(
+                        Modifier
+                            .align(Alignment.Center)
+                            .padding(32.dp),
+                        elevation = CardDefaults.cardElevation(16.dp)
+                    ) {
+                        Column(
+                            Modifier
+                                .padding(48.dp)
+                                .widthIn(min = 300.dp, max = 600.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                popupMessage,
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                            Spacer(Modifier.height(24.dp))
+                            Button(onClick = {
+                                if (!hasNavigatedHome) {
+                                    hasNavigatedHome = true
+                                    shouldShowPopup = false
+                                    onNavigateToHome()
+                                }
+                            }) {
+                                Text("확인", style = MaterialTheme.typography.titleLarge)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -390,19 +458,5 @@ private fun InfoRow(label: String, value: String) {
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-    }
-}
-
-private fun calculateAge(birthDate: String): String {
-    return try {
-        val instant = Instant.parse(birthDate)
-        val birth = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        val now = LocalDateTime.now()
-        val years = now.year - birth.year
-        val months = now.monthValue - birth.monthValue
-        val adjustedMonths = if (months < 0) months + 12 else months
-        "${years}y ${adjustedMonths}m"
-    } catch (e: Exception) {
-        "Unknown"
     }
 } 

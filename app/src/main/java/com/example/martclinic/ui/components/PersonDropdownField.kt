@@ -11,7 +11,6 @@ fun PersonDropdownField(
     label: String,
     value: String,
     options: List<Pair<String, String>>,
-    isEditing: Boolean = false,
     onValueChange: (String) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }

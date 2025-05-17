@@ -66,8 +66,8 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(48.dp)
             ) {
                 HomeMenuCard(
-                    title = "이름으로 검색",
-                    description = "by name",
+                    title = "이름 검색",
+                    description = "Name",
                     icon = Icons.Default.Person,
                     onClick = onNavigateToSearch,
                     modifier = Modifier.weight(1f),
@@ -75,8 +75,8 @@ fun HomeScreen(
                 )
                 
                 HomeMenuCard(
-                    title = "주민등록번호로 검색",
-                    description = "by Residential Registration Number",
+                    title = "주민번호 검색",
+                    description = "Residential ID Number",
                     icon = Icons.Default.Search,
                     onClick = onNavigateToSearchidSearch,
                     modifier = Modifier.weight(1f),
@@ -120,19 +120,25 @@ private fun HomeMenuCard(
             
             Text(
                 text = title,
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontSize = MaterialTheme.typography.displaySmall.fontSize * 1.5
+                ),
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            Text(
-                text = description,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
+            Box(
+                modifier = Modifier.height(MaterialTheme.typography.headlineSmall.fontSize.value.dp * 2)
+            ) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 } 

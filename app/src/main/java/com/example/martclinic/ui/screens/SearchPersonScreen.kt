@@ -36,6 +36,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -75,7 +77,7 @@ fun SearchPersonScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("돌아가기 Back") },
+                title = { Text("Back") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Default.ArrowBack, "Back")
@@ -175,7 +177,7 @@ fun SearchPersonScreen(
                             }
                         ),
                         textStyle = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier
+                        modifier = Modifier.padding(top = 16.dp)
                             .fillMaxWidth()
                             .height(120.dp)
                     )
@@ -268,7 +270,8 @@ fun SearchPersonScreen(
                                             val firstRowState = rememberLazyListState()
                                             val showFirstRowScroll by remember {
                                                 derivedStateOf {
-                                                    firstRowState.firstVisibleItemIndex > 0
+                                                    val lastVisible = firstRowState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                                    lastVisible < sortedPersons.filterIndexed { index, _ -> index % 2 == 0 }.size - 1
                                                 }
                                             }
                                             
@@ -298,11 +301,11 @@ fun SearchPersonScreen(
                                                     modifier = Modifier
                                                         .align(Alignment.CenterEnd)
                                                         .padding(end = 8.dp),
-                                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                    // containerColor = MaterialTheme.colorScheme.primaryContainer,
                                                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                                 ) {
                                                     Icon(
-                                                        Icons.Default.KeyboardArrowRight,
+                                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                                         contentDescription = "Scroll right",
                                                         modifier = Modifier.size(32.dp)
                                                     )
@@ -319,7 +322,8 @@ fun SearchPersonScreen(
                                             val secondRowState = rememberLazyListState()
                                             val showSecondRowScroll by remember {
                                                 derivedStateOf {
-                                                    secondRowState.firstVisibleItemIndex > 0
+                                                    val lastVisible = secondRowState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                                    lastVisible < sortedPersons.filterIndexed { index, _ -> index % 2 == 1 }.size - 1
                                                 }
                                             }
                                             
@@ -353,7 +357,7 @@ fun SearchPersonScreen(
                                                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                                 ) {
                                                     Icon(
-                                                        Icons.Default.KeyboardArrowRight,
+                                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                                         contentDescription = "Scroll right",
                                                         modifier = Modifier.size(32.dp)
                                                     )
@@ -363,12 +367,30 @@ fun SearchPersonScreen(
                                     }
                                 }
                             } else if (searchQuery.isNotEmpty()) {
-                                Text(
-                                    text = "기록 없음. 안내 데스크 접수하세요. No results found. please contact the staff desk.",
+                                Column(
                                     modifier = Modifier
                                         .align(Alignment.Center)
-                                        .padding(16.dp)
-                                )
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = "기록 없습니다. 직원에게 접수하세요.",
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * 2
+                                        ),
+                                        maxLines = 1,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "No results found. Please contact staff.",
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * 2
+                                        ),
+                                        maxLines = 1,
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
                             }
                         }
                     }

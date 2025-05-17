@@ -141,7 +141,7 @@ fun MtrScreen(
                         pname = pname,
                         serial = 0,  // Default serial number
                         pbirth = formatBirthDate(pbirth),
-                        age = calculateAge(pbirth),
+                        age = DateUtils.calculateAge(pbirth),
                         phonenum = phonenum,
                         sex = "1"  // Default sex value
                     )
@@ -300,21 +300,6 @@ private fun formatBirthDate(birthDate: String): String {
         instant.toString() // This will give format like "1973-11-11T15:00:00.000Z"
     } catch (e: Exception) {
         birthDate
-    }
-}
-
-private fun calculateAge(birthDate: String): String {
-    return try {
-        // Parse birth date from ISO 8601 format
-        val instant = Instant.parse(birthDate)
-        val birth = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        val now = LocalDateTime.now()
-        val years = now.year - birth.year
-        val months = now.monthValue - birth.monthValue
-        val adjustedMonths = if (months < 0) months + 12 else months
-        "${years}y ${adjustedMonths}m"
-    } catch (e: Exception) {
-        "Unknown"
     }
 }
 

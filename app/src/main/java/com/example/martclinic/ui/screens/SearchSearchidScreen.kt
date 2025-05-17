@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -81,7 +82,7 @@ fun SearchSearchidScreen(
                     },
                     label = { 
                         Text(
-                            "앞 6자리",
+                            "첫6숫자",
                             style = MaterialTheme.typography.headlineMedium
                         ) 
                     },
@@ -97,7 +98,7 @@ fun SearchSearchidScreen(
                             Icon(
                                 Icons.Default.Search,
                                 "Search",
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(76.dp)
                             )
                         }
                     },
@@ -140,7 +141,7 @@ fun SearchSearchidScreen(
                     },
                     label = { 
                         Text(
-                            "뒷 1자리",
+                            "뒷1숫자",
                             style = MaterialTheme.typography.headlineMedium
                         ) 
                     },
@@ -273,7 +274,7 @@ fun SearchSearchidScreen(
                                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                         ) {
                                             Icon(
-                                                Icons.Default.KeyboardArrowRight,
+                                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                                 contentDescription = "Scroll right",
                                                 modifier = Modifier.size(32.dp)
                                             )
@@ -334,12 +335,38 @@ fun SearchSearchidScreen(
                             }
                         }
                     } else if (searchQuery.isNotEmpty()) {
-                        Text(
-                            text = "No person found with Search ID: $searchQuery",
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
+                        Column(
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
                                 .padding(16.dp)
-                        )
+                        ) {
+                            Text(
+                                text = "기록 없습니다. 직원에게 접수하세요.",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * 2
+                                ),
+                                maxLines = 1,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No results found. Please contact staff.",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * 2
+                                ),
+                                maxLines = 1,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+//                        Text(
+//                            text = "$searchQuery 일치하는 \n주민번호 없음: \n No Result ",
+//                            modifier = Modifier
+//                                .align(Alignment.CenterHorizontally)
+//                                .padding(16.dp),
+//                            style = MaterialTheme.typography.bodyLarge.copy(
+//                                fontSize = MaterialTheme.typography.bodyLarge.fontSize * 2,
+//                                lineHeight = MaterialTheme.typography.bodyLarge.fontSize * 3
+//                            )
+//                        )
                     }
                 }
             }

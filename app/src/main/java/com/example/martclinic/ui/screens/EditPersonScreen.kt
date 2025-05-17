@@ -24,7 +24,8 @@ import com.example.martclinic.ui.components.PersonDropdownField
 fun EditPersonScreen(
     pcode: Int,
     onNavigateBack: () -> Unit,
-    viewModel: PersonViewModel = hiltViewModel()
+    viewModel: PersonViewModel = hiltViewModel(),
+    isEditing: Boolean = true
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val formState by viewModel.formState.collectAsState()
@@ -143,7 +144,6 @@ fun EditPersonScreen(
                                 "3" to "Male",
                                 "4" to "Female"
                             ),
-                            isEditing = true,
                             onValueChange = { viewModel.updateFormField("sex", it) }
                         )
                         
@@ -156,7 +156,6 @@ fun EditPersonScreen(
                                 "2" to "Secondary",
                                 "3" to "Family Member"
                             ),
-                            isEditing = true,
                             onValueChange = { viewModel.updateFormField("relation", it) }
                         )
                         
@@ -176,7 +175,7 @@ fun EditPersonScreen(
                                 "0" to "No",
                                 "1" to "Yes"
                             ),
-                            isEditing = true,
+
                             onValueChange = { viewModel.updateFormField("crippled", it) }
                         )
                         
